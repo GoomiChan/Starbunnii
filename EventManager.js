@@ -4,12 +4,12 @@ var callbacks = {};
 
 // import the packets and make them events
 // the args for these are
-// [bool] fromClient, [socket] sender, [packet] packet
+// [bool] fromClient, [ConnectionProxy] connProxy, [packet] packet
 // if fromClient is true then, well it's from the client, else it's from the server
-// sender is the socket that the event came from
+// connProxy is the ConnectionProxy that the command came from
 // Packet is your packet, each has different fields that you can see at the bottom of this file
 for (key in PacketManager.E_Pcks)
-    callbacks[key] = new Array();
+    callbacks[key] = [];
 
 exports.Register = function(eventName, callback)
 {
@@ -46,7 +46,7 @@ exports.AddEvent = function(eventName)
 {
     if (!callbacks.hasOwnProperty(eventName))
     {
-        callbacks[eventName] = new Array();
+        callbacks[eventName] = [];
         console.log("[EventManager] Added event "+ eventName);
     }
     else
@@ -55,7 +55,7 @@ exports.AddEvent = function(eventName)
 
 exports.GetEventsList = function()
 {
-    var eventsList = new Array();
+    var eventsList = [];
 
     for (key in callbacks)
         eventsList.push(key);

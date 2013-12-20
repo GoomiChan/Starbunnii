@@ -26,6 +26,12 @@ exports.Buffer = function(buff)
             this.WriteUByte(str.charCodeAt(i));
     };
 
+    this.WriteUInt = function(val)
+    {
+        this.buffer.writeUInt32BE(val, offset);
+        offset += 4;
+    };
+
     // Read Funcs
     //=================================
     this.ReadUByte = function()
@@ -50,6 +56,12 @@ exports.Buffer = function(buff)
             str += String.fromCharCode(this.ReadUByte());
 
         return str;
+    };
+
+    this.ReadUInt = function()
+    {
+        offset += 4;
+        return this.buffer.readUInt32BE(offset-4);
     };
 
     this.GetOffset = function()

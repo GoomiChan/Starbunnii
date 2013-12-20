@@ -4,13 +4,15 @@ var StarBuffer = require("./StarBuffer").Buffer;
 
 // Packet map
 var Packets = {};
-this.Packets = Packets;
+exports.Packets = Packets;
 
 // Packets ENUM
 var E_Pcks =
 {
-    CHAT_RECV : 5,
-    CHAT_SEND : 11
+    SEVER_VER               : 1,
+    CHAT_RECV               : 5,
+    UNIVERSE_TIME_UPDATE    : 6,
+    CHAT_SEND               : 11
 };
 exports.E_Pcks = E_Pcks;
 
@@ -51,10 +53,44 @@ exports.DecodePacket = function(fromClient, packet)
         console.warn("[Packet Manager] Error decoding packet ID: " + id + " Error: " + e);
         return {isRaw:false, id:null, data:null};
     }
-}
+};
 
 // The packets objects
 //=================================================
+
+// Server Version
+Packets[E_Pcks.SEVER_VER] = function(buff)
+{
+    this.payload_size = 0; // 1 byte, = 4
+    this.version = null; // 4 bytes
+
+    var self = this;
+    this.Decode = function(buff)
+    {
+        self.payload_size = buff.ReadUByte();
+        self.version = buff.ReadUInt();
+    };
+
+    this.Create = function(ver)
+    {
+        self.version = ver;
+        self.payload_size = 8;
+    };
+
+    this.Send = function(socket)
+    {
+        var buffSize = (self.payload_size/2)+2;
+        var buff = new StarBuffer(new Buffer(buffSize));
+        buff.WriteUByte(E_Pcks.SEVER_VER);
+        buff.WriteUByte(self.payload_size);
+        buff.WriteUInt(self.version);
+
+        socket.write(buff.buffer);
+    };
+
+    if (buff)
+        this.Decode(buff);
+};
 
 // Chat Receive
 Packets[E_Pcks.CHAT_RECV] = function(buff)
@@ -148,3 +184,5 @@ Packets[E_Pcks.CHAT_SEND] = function(buff)
     if (buff)
         this.Decode(buff);
 };
+
+//UNIVERSE_TIME_UPDATE

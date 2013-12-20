@@ -6,7 +6,7 @@ var EventManager = require("./EventManager");
 exports.ConnectionProxy =  function(client, removeCallback)
 {
     this.Client = client;
-    this.Server - null;
+    this.Server = null;
 
     var self = this;
 
@@ -28,7 +28,12 @@ exports.ConnectionProxy =  function(client, removeCallback)
         else
         {
             if (EventManager.Emit(PacketManager.PckIdToString(pck.id), false, self, pck.data))
-                self.Client.write(data);
+            {
+                if (pck.data)
+                    pck.data.Send(self.Client);
+                else
+                    self.Client.write(data);
+            }
         }
     });
 
@@ -56,7 +61,12 @@ exports.ConnectionProxy =  function(client, removeCallback)
         {
             console.log("ID: "+pck.id);
             if (EventManager.Emit(PacketManager.PckIdToString(pck.id), true, self, pck.data))
-                self.Server.write(data);
+            {
+                if (pck.data)
+                    pck.data.Send(self.Server);
+                else
+                    self.Server.write(data);
+            }
         }
     });
 
