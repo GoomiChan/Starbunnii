@@ -16,4 +16,4 @@ Pretty much it will jsut be set up node on your server, run this and sleep :>
 
 [Other]
 ==========================
-Name "<Hanachi>	why not Starbunnii?"
+Name "Hanachi:	why not Starbunnii?"
