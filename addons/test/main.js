@@ -12,6 +12,7 @@ exports.metadata =
 
 // Register for events
 Events.Register("SEVER_VER", onServerVer);
+Events.Register("UNIVERSE_TIME_UPDATE", onUniTimeUpdate);
 Events.Register("CHAT_RECV", onChatRecive);
 Events.Register("CHAT_SEND", onChatSend);
 
@@ -19,7 +20,20 @@ CommandManager.Register("spam", onSpam);
 
 function onServerVer(fromClient, connProxy, pck)
 {
+    if (fromClient)
+        console.log("fromClient");
+
     console.log("Version: " + pck.version);
+
+    // Fake a server version
+    //pck.version = 624;
+
+    return {shouldSend:true};
+}
+
+function onUniTimeUpdate(fromClient, connProxy, pck)
+{
+    console.log("Time: " + pck.timeStamp);
 
     // Fake a server version
     //pck.version = 624;

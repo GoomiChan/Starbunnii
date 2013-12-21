@@ -40,7 +40,7 @@ exports.ConnectionProxy =  function(client, removeCallback)
     this.Server.on('end', function()
     {
         End();
-        self.client.destroy();
+        self.Client.destroy();
     });
 
     this.Server.on('error', function(err)

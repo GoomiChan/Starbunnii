@@ -2,6 +2,8 @@
 // It' won't do many yet :/
 var StarBuffer = require("./StarBuffer").Buffer;
 
+var className = "[Packet Manager]";
+
 // Packet map
 var Packets = {};
 exports.Packets = Packets;
@@ -27,6 +29,7 @@ exports.PckIdToString = function(id)
 {
     return Pck_StringNames[id];
 };
+var PckIdToString = exports.PckIdToString;
 
 // Read the packet id and then pass it of to be decoded
 exports.DecodePacket = function(fromClient, packet)
@@ -58,17 +61,26 @@ exports.DecodePacket = function(fromClient, packet)
 // The packets objects
 //=================================================
 
+// NOTE: All the stuff with the extra variable is a hack because I don't know much about these packets
+// What it does is if their is more data than I know what to do with it will store it and send it with the know data
+// Keeping me and the server/client happy
+// packets are odd, sometimes they carry extra data than waht is jsut for that packet, maybe they batch some small packets?
+
 // Server Version
 Packets[E_Pcks.SEVER_VER] = function(buff)
 {
     this.payload_size = 0; // 1 byte, = 4
     this.version = null; // 4 bytes
+    this.extra = null;
 
     var self = this;
     this.Decode = function(buff)
     {
         self.payload_size = buff.ReadUByte();
         self.version = buff.ReadUInt();
+
+        if (buff.GetOffset() < buff.buffer.length)
+            this.extra = buff.ReadUByteArr(buff.buffer.length - buff.GetOffset());
     };
 
     this.Create = function(ver)
@@ -80,11 +92,63 @@ Packets[E_Pcks.SEVER_VER] = function(buff)
     this.Send = function(socket)
     {
         var buffSize = (self.payload_size/2)+2;
+        if (this.extra)
+            buffSize += this.extra.length;
+
         var buff = new StarBuffer(new Buffer(buffSize));
         buff.WriteUByte(E_Pcks.SEVER_VER);
         buff.WriteUByte(self.payload_size);
         buff.WriteUInt(self.version);
 
+        if (this.extra)
+            buff.WriteUByteArray(this.extra);
+
+        socket.write(buff.buffer);
+    };
+
+    if (buff)
+        this.Decode(buff);
+};
+
+// Universe Time Update
+Packets[E_Pcks.UNIVERSE_TIME_UPDATE] = function(buff)
+{
+    this.payload_size = 0; // 1 byte, = 4*2
+    this.timeStamp = null; // 4 bytes
+
+    this.extra = null;
+
+    var self = this;
+    this.Decode = function(buff)
+    {
+        self.payload_size = buff.ReadUByte();
+        self.timeStamp = buff.ReadUInt();
+
+        if (buff.GetOffset() < buff.buffer.length)
+            this.extra = buff.ReadUByteArr(buff.buffer.length - buff.GetOffset());
+    };
+
+    this.Create = function(time)
+    {
+        self.timeStamp = time;
+        self.payload_size = 8;
+    };
+
+    this.Send = function(socket)
+    {
+        var buffSize = (self.payload_size/2)+2;
+        if (this.extra)
+            buffSize += this.extra.length;
+
+        var buff = new StarBuffer(new Buffer(buffSize));
+        buff.WriteUByte(E_Pcks.UNIVERSE_TIME_UPDATE);
+        buff.WriteUByte(self.payload_size);
+        buff.WriteUInt(self.timeStamp);
+
+        if (this.extra)
+            buff.WriteUByteArray(this.extra);
+
+        console.dir(buff.buffer);
         socket.write(buff.buffer);
     };
 
@@ -101,6 +165,8 @@ Packets[E_Pcks.CHAT_RECV] = function(buff)
     this.nick = null;
     this.msg_size = 0; // 1 byte
     this.msg = "";
+
+    this.extra = null;
 
     var self = this;
     this.Decode = function(buff)
@@ -126,6 +192,9 @@ Packets[E_Pcks.CHAT_RECV] = function(buff)
     this.Send = function(socket)
     {
         var buffSize = (self.payload_size/2)+2;
+        if (this.extra)
+            buffSize += this.extra.length;
+
         var buff = new StarBuffer(new Buffer(buffSize));
         buff.WriteUByte(E_Pcks.CHAT_RECV);
         buff.WriteUByte(self.payload_size);
@@ -134,6 +203,9 @@ Packets[E_Pcks.CHAT_RECV] = function(buff)
         buff.WriteString(self.nick);
         buff.WriteUByte(self.msg_size);
         buff.WriteString(self.msg);
+
+        if (this.extra)
+            buff.WriteUByteArray(this.extra);
 
         socket.write(buff.buffer);
     };
@@ -150,6 +222,7 @@ Packets[E_Pcks.CHAT_SEND] = function(buff)
     this.msg = "";
     this.term = 0;
 
+    this.extra = null;
     var self = this;
     this.Decode = function(buff)
     {
@@ -157,6 +230,9 @@ Packets[E_Pcks.CHAT_SEND] = function(buff)
         self.msg_size = buff.ReadUByte();
         self.msg = buff.ReadString(self.msg_size);
         self.term = buff.ReadUByte();
+
+        if (buff.GetOffset() < buff.buffer.length)
+            this.extra = buff.ReadUByteArr(buff.buffer.length - buff.GetOffset());
     };
 
     this.Create = function(msg)
@@ -171,6 +247,9 @@ Packets[E_Pcks.CHAT_SEND] = function(buff)
     this.Send = function(socket)
     {
         var buffSize = (self.payload_size/2)+2;
+        if (this.extra)
+            buffSize += this.extra.length;
+
         var buff = new StarBuffer(new Buffer(buffSize));
         buff.WriteUByte(E_Pcks.CHAT_SEND);
         buff.WriteUByte(self.payload_size);
@@ -178,11 +257,12 @@ Packets[E_Pcks.CHAT_SEND] = function(buff)
         buff.WriteString(self.msg);
         buff.WriteUByte(self.term);
 
+        if (this.extra)
+            buff.WriteUByteArray(this.extra);
+
         socket.write(buff.buffer);
     };
 
     if (buff)
         this.Decode(buff);
 };
-
-//UNIVERSE_TIME_UPDATE
