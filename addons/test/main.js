@@ -1,6 +1,4 @@
-var Events = require("../../EventManager");
-var PacketManager = require("../../PacketManager");
-var CommandManager = require("../../CommandManager");
+var API = require("../../AddonAPI");
 
 exports.metadata =
 {
@@ -11,12 +9,12 @@ exports.metadata =
 };
 
 // Register for events
-Events.Register("SEVER_VER", onServerVer);
-Events.Register("UNIVERSE_TIME_UPDATE", onUniTimeUpdate);
-Events.Register("CHAT_RECV", onChatRecive);
-Events.Register("CHAT_SEND", onChatSend);
+API.Events.Register("SEVER_VER", onServerVer);
+API.Events.Register("UNIVERSE_TIME_UPDATE", onUniTimeUpdate);
+API.Events.Register("CHAT_RECV", onChatRecive);
+API.Events.Register("CHAT_SEND", onChatSend);
 
-CommandManager.Register("spam", onSpam);
+API.Commands.Register("spam", onSpam);
 
 function onServerVer(fromClient, connProxy, pck)
 {
@@ -36,7 +34,7 @@ function onUniTimeUpdate(fromClient, connProxy, pck)
     console.log("Time: " + pck.timeStamp);
 
     // Fake a server version
-    //pck.version = 624;
+    //pck.timeStamp = 0;//2223476566
 
     return {shouldSend:true};
 }
@@ -56,7 +54,7 @@ function onChatSend(fromClient, connProxy, pck)
     console.log("Got chat send :D");
     console.log("Msg: "+pck.msg);
 
-    var chatsend = new PacketManager.Packets[PacketManager.E_Pcks.CHAT_SEND]();
+    var chatsend = new API.PacMan.Packets[API.E_Pcks.CHAT_SEND]();
     chatsend.Create("Yayifications! :D");
     chatsend.Send(connProxy.Server);
     return {shouldSend:true};
@@ -64,7 +62,7 @@ function onChatSend(fromClient, connProxy, pck)
 
 function onSpam(connProxy, cmd)
 {
-    var chatsend = new PacketManager.Packets[PacketManager.E_Pcks.CHAT_SEND]();
+    var chatsend = new API.PacMan.Packets[API.E_Pcks.CHAT_SEND]();
     chatsend.Create("Yayifications! :D");
 
     for (var i = 0; i < 500; i++)

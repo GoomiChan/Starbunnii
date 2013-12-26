@@ -44,6 +44,8 @@ exports.DecodePacket = function(fromClient, packet)
         if (id in Packets)
         {
             var pck = new Packets[id]();
+
+
             pck.Decode(buff);
 
             return {id:id, data:pck};
@@ -148,7 +150,6 @@ Packets[E_Pcks.UNIVERSE_TIME_UPDATE] = function(buff)
         if (this.extra)
             buff.WriteUByteArray(this.extra);
 
-        console.dir(buff.buffer);
         socket.write(buff.buffer);
     };
 
@@ -257,7 +258,7 @@ Packets[E_Pcks.CHAT_SEND] = function(buff)
         buff.WriteString(self.msg);
         buff.WriteUByte(self.term);
 
-        if (this.extra)
+        if (this.extra && this.extra.length < buffSize)
             buff.WriteUByteArray(this.extra);
 
         socket.write(buff.buffer);

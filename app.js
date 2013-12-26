@@ -3,6 +3,7 @@ var ModuleManager = require("./ModuleManager");
 var ConnectionProxy = require("./ConnectionProxy").ConnectionProxy;
 var EventManager = require("./EventManager");
 var CommandManager = require("./CommandManager");
+var API = require("./AddonAPI");
 
 var clients = [];
 

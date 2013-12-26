@@ -43,6 +43,12 @@ exports.ConnectionProxy =  function(client, removeCallback)
         self.Client.destroy();
     });
 
+    this.Server.on('close', function()
+    {
+        End();
+        self.Client.destroy();
+    });
+
     this.Server.on('error', function(err)
     {
         console.warn(err);
@@ -71,6 +77,12 @@ exports.ConnectionProxy =  function(client, removeCallback)
     });
 
     this.Client.on('end', function ()
+    {
+        End();
+        self.Server.destroy();
+    });
+
+    this.Client.on('close', function ()
     {
         End();
         self.Server.destroy();
