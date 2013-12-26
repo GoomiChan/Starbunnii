@@ -2,6 +2,9 @@
 ==========================
 Starbunii is a server wrapper for the Starbound server designed to be expanded easily with addons.
 It's sorta like Bucket but for Starbound.
+It is still in it's early stages so the API and well everything is quite unstable.
+
+Check the wiki for some more details.
 
 [Tech]
 ==========================
@@ -12,7 +15,7 @@ devolpment for the server :D
 [Installation]
 ==========================
 TODO:
-Pretty much it will jsut be set up node on your server, run this and sleep :>
+Pretty much it will just be set up node on your server, run this and sleep :>
 
 [Other]
 ==========================
